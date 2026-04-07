@@ -1,23 +1,27 @@
 import { NextResponse } from "next/server";
-import { readdir } from "fs/promises";
-import path from "path";
+import { list } from "@vercel/blob";
 
 export async function GET() {
   try {
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    const files = await readdir(uploadDir);
+    const isVercel = process.env.VERCEL === '1';
 
-    const pptFiles = files
-      .filter(f => f.endsWith(".pptx") || f.endsWith(".ppt"))
-      .map(name => ({
-        name,
-        url: `/uploads/${name}`,
-        createdAt: new Date().toISOString() // Mock date for now
-      }));
-
-    return NextResponse.json(pptFiles);
+    if (isVercel) {
+      // On Vercel, list blobs
+      const { blobs } = await list();
+      const pptFiles = blobs
+        .filter(blob => blob.pathname.endsWith(".pptx") || blob.pathname.endsWith(".ppt"))
+        .map(blob => ({
+          name: blob.pathname,
+          url: blob.url,
+          createdAt: blob.uploadedAt
+        }));
+      return NextResponse.json(pptFiles);
+    } else {
+      // Local development: return empty array since we can't list Vercel blobs locally
+      return NextResponse.json([]);
+    }
   } catch (error) {
     console.error("List error:", error);
-    return NextResponse.json([], { status: 200 }); // Return empty array if dir doesn't exist yet
+    return NextResponse.json([], { status: 200 });
   }
 }

@@ -5,18 +5,17 @@ import Link from "next/link";
 import { ChevronLeft, Maximize2, Share2, MoreHorizontal, Download, Cpu } from "lucide-react";
 import PPTViewer from "@/components/PPTViewer";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ViewerPage({ params: paramsPromise }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const params = use(paramsPromise);
   const fileName = decodeURIComponent(params.filename);
   
-  // We prioritize the PDF version for 100% local rendering
-  // The filename of the PDF is the original file name with .pdf suffix
-  const pdfFileName = fileName.replace(/\.(pptx|ppt)$/i, ".pdf");
-  const fileUrl = `/uploads/${fileName}`;
-  const pdfUrl = `/uploads/${pdfFileName}`;
+  // Check if URL is provided as query parameter (for Vercel Blob)
+  const fileUrl = searchParams.get('url') || `/uploads/${fileName}`;
+  const pdfUrl = searchParams.get('pdfUrl') || `/uploads/${fileName.replace(/\.(pptx|ppt)$/i, ".pdf")}`;
 
   return (
     <div className="py-6 mb-12">

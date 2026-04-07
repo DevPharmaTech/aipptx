@@ -32,8 +32,12 @@ export default function FileUpload({ onUploadComplete }) {
       });
 
       if (response.ok) {
+        const data = await response.json();
         setStatus("success");
-        if (onUploadComplete) onUploadComplete();
+        
+        // Redirect to viewer with the blob URL
+        const viewerUrl = `/viewer/${encodeURIComponent(file.name)}?url=${encodeURIComponent(data.fileUrl)}`;
+        window.location.href = viewerUrl;
       } else {
         setStatus("error");
       }

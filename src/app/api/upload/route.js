@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 import { exec } from "child_process";
 import { promisify } from "util";
 
@@ -17,32 +16,21 @@ export async function POST(req) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = file.name;
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    const uploadPath = path.join(uploadDir, fileName);
 
-    // Ensure the upload directory exists
-    await mkdir(uploadDir, { recursive: true });
+    // Upload to Vercel Blob storage
+    console.log("Uploading to Vercel Blob:", fileName, "Size:", buffer.length);
 
-    // Save the original file
-    await writeFile(uploadPath, buffer);
+    const blob = await put(fileName, buffer, {
+      access: 'public',
+    });
 
-    // Convert to PDF using LibreOffice for reliable local rendering
-    // This is the "100% Local" rendering fix
-    try {
-      console.log(`PPT Hub: Starting local conversion for ${fileName}...`);
-      await execPromise(`libreoffice --headless --convert-to pdf --outdir "${uploadDir}" "${uploadPath}"`);
-      console.log(`PPT Hub: Conversion successful for ${fileName}`);
-    } catch (convError) {
-      console.error("PPT Hub: Conversion failed", convError);
-      // We still return success since the original file is saved, 
-      // but the viewer will need to handle the missing PDF fallback.
-    }
+    console.log("Vercel Blob upload successful:", blob.url);
 
-    return NextResponse.json({ 
-      success: true, 
-      fileName, 
-      filePath: `/uploads/${fileName}`,
-      pdfPath: `/uploads/${fileName.replace(/\.(pptx|ppt)$/i, ".pdf")}`
+    return NextResponse.json({
+      success: true,
+      fileName,
+      fileUrl: blob.url,
+      expiresAt: "Files stored permanently in Vercel Blob"
     });
   } catch (error) {
     console.error("Upload error:", error);

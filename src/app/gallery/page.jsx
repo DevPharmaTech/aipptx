@@ -88,7 +88,7 @@ export default function GalleryPage() {
                   <FileText className="text-indigo-600" size={32} />
                 </div>
                 <Link
-                  href={`/viewer/${encodeURIComponent(file.name)}`}
+                  href={`/viewer/${encodeURIComponent(file.name)}?url=${encodeURIComponent(file.url)}`}
                   className="bg-indigo-600 text-white p-3 rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-xl shadow-indigo-300"
                 >
                   <Play size={20} fill="currentColor" />
@@ -104,7 +104,7 @@ export default function GalleryPage() {
 
               <div className="mt-8 flex items-center gap-3">
                 <Link
-                  href={`/viewer/${encodeURIComponent(file.name)}`}
+                  href={`/viewer/${encodeURIComponent(file.name)}?url=${encodeURIComponent(file.url)}`}
                   className="flex-1 bg-zinc-900 dark:bg-white dark:text-zinc-900 text-white py-3.5 rounded-2xl font-bold text-center hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
                 >
                   Run Slides
