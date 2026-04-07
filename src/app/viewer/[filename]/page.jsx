@@ -15,7 +15,9 @@ export default function ViewerPage({ params: paramsPromise }) {
   
   // Check if URL is provided as query parameter (for Vercel Blob)
   const fileUrl = searchParams.get('url') || `/uploads/${fileName}`;
-  const pdfUrl = searchParams.get('pdfUrl') || `/uploads/${fileName.replace(/\.(pptx|ppt)$/i, ".pdf")}`;
+  const pdfUrlParam = searchParams.get('pdfUrl');
+  const isRemoteUrl = /^https?:\/\//i.test(fileUrl);
+  const pdfUrl = pdfUrlParam || (!isRemoteUrl ? `/uploads/${fileName.replace(/\.(pptx|ppt)$/i, ".pdf")}` : null);
 
   return (
     <div className="py-6 mb-12">
