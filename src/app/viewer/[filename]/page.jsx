@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { ChevronLeft, Maximize2, Share2, MoreHorizontal, Download } from "lucide-react";
+import { ChevronLeft, Maximize2, Share2, MoreHorizontal, Download, Cpu } from "lucide-react";
 import PPTViewer from "@/components/PPTViewer";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,12 @@ export default function ViewerPage({ params: paramsPromise }) {
   const router = useRouter();
   const params = use(paramsPromise);
   const fileName = decodeURIComponent(params.filename);
-  const fileUrl = `${window.location.protocol}//${window.location.host}/uploads/${fileName}`;
+  
+  // We prioritize the PDF version for 100% local rendering
+  // The filename of the PDF is the original file name with .pdf suffix
+  const pdfFileName = fileName.replace(/\.(pptx|ppt)$/i, ".pdf");
+  const fileUrl = `/uploads/${fileName}`;
+  const pdfUrl = `/uploads/${pdfFileName}`;
 
   return (
     <div className="py-6 mb-12">
@@ -38,6 +43,10 @@ export default function ViewerPage({ params: paramsPromise }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold ring-1 ring-emerald-500/20">
+            <Cpu size={14} />
+            Rendering Local Engine
+          </div>
           <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold shadow-xl transition-all hover:scale-105 active:scale-95">
             <Maximize2 size={18} />
             Full Screen
@@ -56,8 +65,9 @@ export default function ViewerPage({ params: paramsPromise }) {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
+        className="bg-zinc-100 dark:bg-zinc-900/50 p-6 rounded-[3rem] border border-zinc-100 dark:border-zinc-800 shadow-inner"
       >
-        <PPTViewer url={fileUrl} />
+        <PPTViewer url={fileUrl} pdfUrl={pdfUrl} />
       </motion.div>
     </div>
   );
